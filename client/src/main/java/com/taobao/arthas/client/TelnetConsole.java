@@ -215,7 +215,7 @@ public class TelnetConsole {
 
         if (telnetConsole.isHelp()) {
             System.out.println(usage(cli));
-            return STATUS_ERROR;
+            return STATUS_OK; // ?
         }
 
         // Try to read cmds
@@ -243,6 +243,7 @@ public class TelnetConsole {
             ((UnixTerminal) terminal).disableLitteralNextCharacter();
         }
 
+        final TelnetClient telnet = new TelnetClient();
         try {
             int width = TerminalSupport.DEFAULT_WIDTH;
             int height = TerminalSupport.DEFAULT_HEIGHT;
@@ -273,7 +274,7 @@ public class TelnetConsole {
                 }
             }
 
-            final TelnetClient telnet = new TelnetClient();
+
             telnet.setConnectTimeout(DEFAULT_CONNECTION_TIMEOUT);
 
             // send init terminal size
@@ -320,17 +321,16 @@ public class TelnetConsole {
                     System.out.println("Execute commands error: " + e.getMessage());
                     e.printStackTrace();
                     return STATUS_EXEC_ERROR;
-                } finally {
-                    try {
-                        telnet.disconnect();
-                    } catch (IOException e) {
-                        //ignore ex
-                    }
                 }
             }
 
             return STATUS_OK;
         } finally {
+            try {
+                telnet.disconnect();
+            } catch (IOException e) {
+                //ignore ex
+            }
             //reset terminal setting, fix https://github.com/alibaba/arthas/issues/1412
             try {
                 terminal.restore();

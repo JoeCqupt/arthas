@@ -361,12 +361,12 @@ public class ArthasBootstrap {
         if (configure.getTelnetPort() != null && configure.getTelnetPort() == 0) {
             int newTelnetPort = SocketUtils.findAvailableTcpPort();
             configure.setTelnetPort(newTelnetPort);
-            logger().info("generate random telnet port: " + newTelnetPort);
+            logger().info("generate random telnet port: {}", newTelnetPort);
         }
         if (configure.getHttpPort() != null && configure.getHttpPort() == 0) {
             int newHttpPort = SocketUtils.findAvailableTcpPort();
             configure.setHttpPort(newHttpPort);
-            logger().info("generate random http port: " + newHttpPort);
+            logger().info("generate random http port: {}", newHttpPort);
         }
         // try to find appName
         if (configure.getAppName() == null) {

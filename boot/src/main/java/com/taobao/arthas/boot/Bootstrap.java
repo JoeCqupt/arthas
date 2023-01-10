@@ -412,7 +412,7 @@ public class Bootstrap {
                             pid, bootstrap.getHttpPortOrDefault());
             AnsiLog.error("1. Try to restart arthas-boot, select process {}, shutdown it first with running the 'stop' command.",
                             httpPortPid);
-            AnsiLog.error("2. Or try to use different http port, for example: java -jar arthas-boot.jar --telnet-port 9998 --http-port 9999", httpPortPid);
+            AnsiLog.error("2. Or try to use different http port, for example: java -jar arthas-boot.jar --telnet-port 9998 --http-port 9999");
             System.exit(1);
         }
 
@@ -505,19 +505,23 @@ public class Bootstrap {
             }
 
             // get the latest version
-            arthasHomeDir = new File(ARTHAS_LIB_DIR, localLastestVersion + File.separator + "arthas");
+            File localLastestVersionDir = new File(ARTHAS_LIB_DIR, localLastestVersion + File.separator + "arthas");
+            verifyArthasHome(localLastestVersionDir.getAbsolutePath());
+            arthasHomeDir = localLastestVersionDir;
         }
 
-        verifyArthasHome(arthasHomeDir.getAbsolutePath());
-
-        AnsiLog.info("arthas home: " + arthasHomeDir);
+        AnsiLog.info("arthas home: {}", arthasHomeDir);
 
         if (telnetPortPid > 0 && pid == telnetPortPid) {
             AnsiLog.info("The target process already listen port {}, skip attach.", bootstrap.getTelnetPortOrDefault());
         } else {
             //double check telnet port and pid before attach
             telnetPortPid = findProcessByTelnetClient(arthasHomeDir.getAbsolutePath(), bootstrap.getTelnetPortOrDefault());
+            if (telnetPortPid > 0 && pid == telnetPortPid) {
+                AnsiLog.info("The target process already listen port {}, skip attach.", bootstrap.getTelnetPortOrDefault());
+            }
             checkTelnetPortPid(bootstrap, telnetPortPid, pid);
+
 
             // start arthas-core.jar
             List<String> attachArgs = new ArrayList<String>();
@@ -581,8 +585,8 @@ public class Bootstrap {
                 attachArgs.add(bootstrap.getDisabledCommands());
             }
 
-            AnsiLog.info("Try to attach process " + pid);
-            AnsiLog.debug("Start arthas-core.jar args: " + attachArgs);
+            AnsiLog.info("Try to attach process :{}", pid);
+            AnsiLog.debug("Start arthas-core.jar args: {}", attachArgs);
             ProcessUtils.startArthasCore(pid, attachArgs);
 
             AnsiLog.info("Attach process {} success.", pid);
@@ -622,7 +626,7 @@ public class Bootstrap {
         telnetArgs.add("" + bootstrap.getTelnetPortOrDefault());
 
         AnsiLog.info("arthas-client connect {} {}", bootstrap.getTargetIpOrDefault(), bootstrap.getTelnetPortOrDefault());
-        AnsiLog.debug("Start arthas-client.jar args: " + telnetArgs);
+        AnsiLog.debug("Start arthas-client.jar args: {}", telnetArgs);
 
         // fix https://github.com/alibaba/arthas/issues/833
         Thread.currentThread().setContextClassLoader(classLoader);

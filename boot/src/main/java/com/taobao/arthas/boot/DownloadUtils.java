@@ -86,10 +86,10 @@ public class DownloadUtils {
 
         File tempFile = File.createTempFile("arthas", "arthas");
 
-        AnsiLog.debug("Arthas download temp file: " + tempFile.getAbsolutePath());
+        AnsiLog.debug("Arthas download temp file: {}", tempFile.getAbsolutePath());
 
         String remoteDownloadUrl = repoUrl.replace("${REPO}", repoMirror).replace("${VERSION}", arthasVersion);
-        AnsiLog.info("Start download arthas from remote server: " + remoteDownloadUrl);
+        AnsiLog.info("Start download arthas from remote server: {}", remoteDownloadUrl);
         saveUrl(tempFile.getAbsolutePath(), remoteDownloadUrl, true);
         AnsiLog.info("Download arthas success.");
         IOUtils.unzip(tempFile.getAbsolutePath(), unzipDir.getAbsolutePath());
@@ -118,7 +118,7 @@ public class DownloadUtils {
             int totalCount = 0;
             int count;
             long lastPrintTime = System.currentTimeMillis();
-            while ((count = in.read(data, 0, 1024 * 1024)) != -1) {
+            while ((count = in.read(data)) != -1) {
                 totalCount += count;
                 if (printProgress) {
                     long now = System.currentTimeMillis();
@@ -132,7 +132,7 @@ public class DownloadUtils {
             }
         } catch (javax.net.ssl.SSLException e) {
             AnsiLog.error("TLS connect error, please try to add --use-http argument.");
-            AnsiLog.error("URL: " + urlString);
+            AnsiLog.error("URL: {}", urlString);
             AnsiLog.error(e);
         } finally {
             IOUtils.close(in);
