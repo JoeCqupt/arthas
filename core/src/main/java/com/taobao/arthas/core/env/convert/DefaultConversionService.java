@@ -26,6 +26,9 @@ public class DefaultConversionService implements ConfigurableConversionService {
 
         converters.put(new ConvertiblePair(String.class, Arrays.class), new StringToArrayConverter(this));
 
+        converters.put(new ConvertiblePair(Object.class, String.class), new ObjectToStringConverter());
+
+        converters.put(new ConvertiblePair(Number.class, Number.class), new NumberToNumberConverter());
     }
 
     @Override
@@ -50,11 +53,22 @@ public class DefaultConversionService implements ConfigurableConversionService {
         if (targetType.isArray()) {
             return true;
         }
+
+        if (String.class.isAssignableFrom(targetType)) {
+            return true;
+        }
+
+        if (Number.class.isAssignableFrom(sourceType) &&
+                Number.class.isAssignableFrom(targetType)) {
+            return true;
+        }
+
         return false;
     }
 
     @Override
     public <T> T convert(Object source, Class<T> targetType) {
+        Class<?> sourceType = source.getClass();
 
         if (targetType.isPrimitive()) {
             targetType = (Class<T>) objectiveClass(targetType);
@@ -69,6 +83,16 @@ public class DefaultConversionService implements ConfigurableConversionService {
         if (converter == null && targetType.isEnum()) {
             converter = converters.get(new ConvertiblePair(source.getClass(), Enum.class));
         }
+
+        if (Number.class.isAssignableFrom(sourceType) &&
+                Number.class.isAssignableFrom(targetType)) {
+            converter = converters.get(new ConvertiblePair(Number.class, Number.class));
+        }
+
+        if (String.class.isAssignableFrom(targetType)) {
+            converter = converters.get(new ConvertiblePair(Object.class, String.class));
+        }
+
         if (converter != null) {
             return (T) converter.convert(source, targetType);
         }
